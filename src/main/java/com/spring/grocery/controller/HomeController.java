@@ -34,10 +34,10 @@ public class HomeController {
 		return "index";
 	}
 	
-	@GetMapping("/error")
-	public String getIndex() {
-		return "redirect:/index";
-	}
+//	@RequestMapping(value="/error")
+//	public String getIndex() {
+//		return "redirect:/index";
+//	}
 	
 	@RequestMapping(value="/login", method = GET)
 	public String getLogin(Model model) {

@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.web.servlet.ServletListenerRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -20,6 +21,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.csrf.CsrfFilter;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.security.web.csrf.CsrfTokenRepository;
+import org.springframework.security.web.session.HttpSessionEventPublisher;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.spring.grocery.service.SecretService;
@@ -43,17 +45,18 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	@Autowired
 	private SecretService secretService;
 
-	//private String[] ignoreMathcers = {"/images/**", "/favicon.io", "/", "/index", "/css/**"};
+	private String[] ignoreMathcers = {"/images/**", "/favicon.io", "/", "/index", "/css/**"};
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {    	
 		log.debug("In: " + this.toString() + ":: " + "configure");
-		http
-		.addFilterAfter(new JwtCsrfValidatorFilter(), CsrfFilter.class)
+		http.csrf().ignoringAntMatchers(ignoreMathcers)
+		.and()
 		.authorizeRequests()
 		.antMatchers("/images/**", "/favicon.io", "/","/resources/**", "/index", "/css/**").permitAll()
 		.anyRequest().authenticated()
 		.and()
+		.addFilterAfter(new JwtCsrfValidatorFilter(), CsrfFilter.class)
 		.csrf()
 		.csrfTokenRepository(jwtCsrfTokenRepository)		
 		.and()		
@@ -62,7 +65,14 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 				.defaultSuccessUrl("/userprofile")
 				)
 		.logout().invalidateHttpSession(true)
-		.permitAll();		
+		.deleteCookies("JSESSIONID")
+		.logoutSuccessUrl("/")
+		.and()
+        .sessionManagement()
+            .maximumSessions(1)
+            .maxSessionsPreventsLogin(true)
+            .expiredUrl("/login?expired")
+        ;	
 	}
 
 	private class JwtCsrfValidatorFilter extends OncePerRequestFilter {
@@ -126,7 +136,12 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 		auth.userDetailsService(userDetailsService()).passwordEncoder(passwordEncoder());
 	}	
-
+	
+	@Bean
+    public static ServletListenerRegistrationBean httpSessionEventPublisher() {
+        return new ServletListenerRegistrationBean(new HttpSessionEventPublisher());
+    }
+	
 	@Override
 	public String toString() {
 		return "WebSecurityConfig [jwtCsrfTokenRepository=" + jwtCsrfTokenRepository + ", secretService="
