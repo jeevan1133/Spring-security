@@ -9,19 +9,16 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.web.servlet.ServletListenerRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.csrf.CsrfFilter;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.security.web.csrf.CsrfTokenRepository;
-import org.springframework.security.web.session.HttpSessionEventPublisher;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.spring.grocery.service.SecretService;
@@ -36,7 +33,6 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Configuration
-@EnableWebSecurity
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
 	@Autowired
@@ -53,7 +49,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 		http.csrf().ignoringAntMatchers(ignoreMathcers)
 		.and()
 		.authorizeRequests()
-		.antMatchers("/images/**", "/favicon.io", "/","/resources/**", "/index", "/css/**").permitAll()
+		.antMatchers(ignoreMathcers).permitAll()
 		.anyRequest().authenticated()
 		.and()
 		.addFilterAfter(new JwtCsrfValidatorFilter(), CsrfFilter.class)
@@ -64,12 +60,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 				.loginPage("/login").permitAll()
 				.defaultSuccessUrl("/userprofile")
 				)
-		.logout().invalidateHttpSession(true)
-		.deleteCookies("JSESSIONID")
-		.logoutSuccessUrl("/")
-		.and()
-        .sessionManagement()
-            .maximumSessions(1)
+		.logout(logout -> logout
+						.invalidateHttpSession(true)						
+						)		
+        .sessionManagement()        	
+            .maximumSessions(2)
             .maxSessionsPreventsLogin(true)
             .expiredUrl("/login?expired")
         ;	
@@ -137,15 +132,15 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 		auth.userDetailsService(userDetailsService()).passwordEncoder(passwordEncoder());
 	}	
 	
-	@Bean
-    public static ServletListenerRegistrationBean httpSessionEventPublisher() {
-        return new ServletListenerRegistrationBean(new HttpSessionEventPublisher());
-    }
-	
 	@Override
 	public String toString() {
 		return "WebSecurityConfig [jwtCsrfTokenRepository=" + jwtCsrfTokenRepository + ", secretService="
 				+ secretService + "]";
 	}
-
+	
+	@Bean
+	public boolean enableHttpSessionEventPublisher() {
+		return true;
+	}
+	
 }

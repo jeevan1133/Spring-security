@@ -10,13 +10,22 @@
 
   <body>
   <div class="container">
-
+  <div class="row">
+        <div class="col-md-6 col-md-offset-6">
+        <h2><a th:href="@{/}">Home</a></h2>
+        </div>
+   </div>
     <div class="starter-template">
-        <h1>Admin page (Spring Security protected)</h1>
-        <h1 th:inline="text">Hello [[${#httpServletRequest.remoteUser}]]!</h1>
+        <h1>Secure page</h1>
+        <div th:object="${user}">
+        <p> Hello! <span th:text="*{name}">Sebastian</span></p>
+        <p> Thank you for your patronage since <span th:text="*{customerSince.time}">today</span></p>
+        </div>
+        <div>
         <form th:action="@{/logout}" method="post">
             <input type="submit" value="Sign Out"/>
         </form>
+        </div>
     </div>
 </div>
   </body>

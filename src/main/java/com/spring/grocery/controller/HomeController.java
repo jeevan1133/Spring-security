@@ -7,10 +7,13 @@ import java.util.Calendar;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+
+import com.spring.grocery.model.CustomUser;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -27,29 +30,39 @@ public class HomeController {
 		request.setAttribute("today", dateFormat.format(cal.getTime()));
 		return "redirect:/index";
 	}
-	
+
 	@RequestMapping(value="/index")
-	public String getIndex(HttpServletRequest request) {
-		System.out.println("Request attribute: " + request.getAttribute("today"));
+	public String getIndex(Model model) {
+		//System.out.println("Request attribute: " + request.getAttribute("today"));
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		try {
+			CustomUser userDetails = (CustomUser)auth.getPrincipal();
+			model.addAttribute("user", userDetails.getCustomer());
+		} catch (Exception e) {
+			// TODO: handle exception
+			log.debug("No logged in user");
+		}
 		return "index";
 	}
-	
-//	@RequestMapping(value="/error")
-//	public String getIndex() {
-//		return "redirect:/index";
-//	}
-	
+
 	@RequestMapping(value="/login", method = GET)
 	public String getLogin(Model model) {
 		log.info("GETTING /login page");		
+		
 		return "login";
 	}
-	
+
 	@RequestMapping(value="/userprofile", method=GET)
-	public String getProfile(Model model) {
+	public String getProfile(Model model) throws Exception  {
 		log.info("GETTING USER PROFILE");
-		//log.info("User is: " + user);
-		//model.addAttribute("user", user);
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		log.debug("authentication: " + auth.getName());
+		log.debug("auth: " + auth.toString());
+
+		CustomUser userDetails = (CustomUser)auth.getPrincipal();
+		log.debug("customer is: " + userDetails.getCustomer());
+		
+		model.addAttribute("user", userDetails.getCustomer());
 		return "userprofile";
 	}
 }

@@ -7,7 +7,6 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 //@SpringBootApplication(scanBasePackageClasses = {LoadDatabase.class, CSRFConfig.class, 
 //		 WebSecurityConfig.class, SecretService.class, HomeController.class, CustomerController.class, 
 //		 BaseController.class}) // MyAccessDeniedHandler.class})
-//@EnableWebMvc 
 @SpringBootApplication
 @EnableWebSecurity
 public class GroceryApplication {
@@ -16,3 +15,8 @@ public class GroceryApplication {
 		SpringApplication.run(GroceryApplication.class, args);
 	}
 }
+
+
+//TODO
+//1. get customer object in /userprofile
+//2. display that customer using thymeleaf
