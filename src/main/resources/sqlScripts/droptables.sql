@@ -1,0 +1,10 @@
+drop table product_comments;
+drop table orders_order_line;
+drop table order_line;
+drop table customer_order;
+drop table product;
+drop table orders;
+drop table customer;
+drop table comment;
+drop table `user`;
+drop table hibernate_sequences;
