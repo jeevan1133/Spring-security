@@ -138,9 +138,4 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 				+ secretService + "]";
 	}
 	
-	@Bean
-	public boolean enableHttpSessionEventPublisher() {
-		return true;
-	}
-	
 }

@@ -11,7 +11,6 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-//import com.spring.grocery.dao.CommentRepository;
 import com.spring.grocery.dao.CustomerRepository;
 import com.spring.grocery.dao.OrderRepository;
 import com.spring.grocery.dao.ProductRepository;

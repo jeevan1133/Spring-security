@@ -47,8 +47,7 @@ public class HomeController {
 
 	@RequestMapping(value="/login", method = GET)
 	public String getLogin(Model model) {
-		log.info("GETTING /login page");		
-		
+		log.info("GETTING /login page");				
 		return "login";
 	}
 
