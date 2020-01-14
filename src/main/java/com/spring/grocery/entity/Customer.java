@@ -21,6 +21,9 @@ public class Customer {
 	private String name;
 	private Calendar customerSince;
 	
+	private String firstName;
+	private String lastName;
+	
 	public Customer() {
 		// TODO Auto-generated constructor stub
 	}
@@ -28,6 +31,18 @@ public class Customer {
 	public Customer(String nameString, Calendar cusDate) {
 		name = nameString;
 		customerSince = cusDate;
+		String[] namesList = nameString.split(" ");
+		if (namesList.length >= 1) {
+			firstName = namesList[0];
+			lastName = namesList[1];
+		}
 	}
-
+	
+	public Customer(String first, String last, Calendar cusDate) {
+		this.firstName = first;
+		this.lastName = last;
+		this.customerSince = cusDate;
+		this.name = first + " " + last;
+	}
+	
 }

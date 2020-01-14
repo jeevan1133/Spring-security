@@ -13,14 +13,14 @@ import lombok.extern.slf4j.Slf4j;
 @Configuration
 public class CSRFConfig {
 
-    @Autowired
-    private SecretService secretService;    
-    
-    @Bean
-    public CsrfTokenRepository jwtCsrfTokenRepository() {    	
-    	log.debug("In: " + this.toString() + "::jwtCsrfTokenRepository");
-        return new JWTCsrfTokenRepository(secretService.getSecretBytes());
-    }
+	@Autowired
+	private SecretService secretService;    
+
+	@Bean
+	public CsrfTokenRepository jwtCsrfTokenRepository() {    	
+		log.debug("In: " + this.toString() + "::jwtCsrfTokenRepository");
+		return new JWTCsrfTokenRepository(secretService.getSecretBytes());
+	}
 
 	@Override
 	public String toString() {

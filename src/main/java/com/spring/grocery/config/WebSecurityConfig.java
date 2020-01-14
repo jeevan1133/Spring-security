@@ -11,9 +11,12 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.csrf.CsrfFilter;
@@ -24,13 +27,9 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import com.spring.grocery.service.SecretService;
 import com.spring.grocery.service.UserDetailsServiceImp;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.JwtException;
-import io.jsonwebtoken.JwtParser;
 import io.jsonwebtoken.Jwts;
 import lombok.extern.slf4j.Slf4j;
-
 @Slf4j
 @Configuration
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
@@ -40,66 +39,80 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
 	@Autowired
 	private SecretService secretService;
+	
+//	@Autowired
+//	private SuccessfulHandler successHandler;
 
-	private String[] ignoreMathcers = {"/images/**", "/favicon.io", "/", "/index", "/css/**"};
-
+	private final String[] ignoreStaticResources = { "/images/**", "/favicon.ico", "/css/**" };
+	private final String[] ignoreMatchers = { "/", "/index" , "/registration" };	
+	
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {    	
-		log.debug("In: " + this.toString() + ":: " + "configure");
-		http.csrf().ignoringAntMatchers(ignoreMathcers)
-		.and()
-		.authorizeRequests()
-		.antMatchers(ignoreMathcers).permitAll()
-		.anyRequest().authenticated()
-		.and()
-		.addFilterAfter(new JwtCsrfValidatorFilter(), CsrfFilter.class)
-		.csrf()
-		.csrfTokenRepository(jwtCsrfTokenRepository)		
-		.and()		
-		.formLogin(formLogin -> formLogin
-				.loginPage("/login").permitAll()
-				.defaultSuccessUrl("/userprofile")
-				)
-		.logout(logout -> logout
-						.invalidateHttpSession(true)						
-						)		
-        .sessionManagement()        	
-            .maximumSessions(2)
-            .maxSessionsPreventsLogin(true)
-            .expiredUrl("/login?expired")
-        ;	
+		log.debug("In: " + this.toString() + ":: " + "configure");	
+		http
+			.csrf().disable();
+		http	
+			.authorizeRequests()
+			.antMatchers(ignoreMatchers).permitAll()
+			.anyRequest().authenticated()			
+			.and()
+			.addFilterAfter(new JwtCsrfValidatorFilter(), CsrfFilter.class)
+			.csrf()
+			.csrfTokenRepository(jwtCsrfTokenRepository)
+			.and()
+			.formLogin(formlogin ->
+					formlogin.loginPage("/login").permitAll()
+					//.successHandler(successHandler)
+					.failureUrl("/")
+				
+			)
+			.logout()
+			.invalidateHttpSession(true)
+			.clearAuthentication(true)
+			.logoutSuccessUrl("/")			
+			.permitAll()
+			.and()
+			.sessionManagement()    
+			.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
+			.maximumSessions(2)
+			.maxSessionsPreventsLogin(true)
+			;
 	}
+	
+	@Override
+	public void configure(WebSecurity web) throws Exception {
+        web
+        	.debug(true)        	
+        	.ignoring()
+            .antMatchers(ignoreStaticResources);
+            //.antMatchers(ignoreMatchers);
+    }
 
 	private class JwtCsrfValidatorFilter extends OncePerRequestFilter {
 
 		@Override
-		protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+		protected void doFilterInternal(HttpServletRequest request, 
+				HttpServletResponse response, 
+				FilterChain filterChain) throws ServletException, IOException
+		{
 			// NOTE: A real implementation should have a nonce cache so the token cannot be reused
-			log.debug("In private class: JwtCsrfValidatorFilter: doFilterInternal");        	
 			CsrfToken token = (CsrfToken) request.getAttribute("_csrf");
 			log.debug("CsrfToken header: " + token.getHeaderName() +
 					" CsrfToken parameterName:" + token.getParameterName() + 
 					" CsrfToken token:" + token.getToken() +
 					", filterChain: " + filterChain.toString());
-			log.debug("Request servlet path: " + request.getServletPath());
+			log.debug("Request servlet path: " + request.getServletPath());			
 			if (
-					// only care if it's a POST	            
-					"POST".equals(request.getMethod()) &&	           
-					// make sure we have a token
-					token != null
-					) {
+				// only care if it's a POST	            
+				"POST".equals(request.getMethod()) &&	           
+				// make sure we have a token
+				token != null
+				) {
 				// CsrfFilter already made sure the token matched. Here, we'll make sure it's not expired
 				try {
-					log.debug("parsing token");
-					JwtParser dummpyParser = Jwts.parser()
-							.setSigningKeyResolver(secretService.getSigningKeyResolver());
-					log.debug("got secret service key: token is: " + token.getToken());
-					Jws<Claims> to = dummpyParser.parseClaimsJws(token.getToken());
-					log.debug("JSON<Claims> Signature: " + to.getSignature() + 
-							" Header:" + to.getHeader() + 
-							" Body:" + to.getBody() +
-							" :"  + to.toString()                    
-							);
+					Jwts.parser()
+						.setSigningKeyResolver(secretService.getSigningKeyResolver())
+						.parseClaimsJws(token.getToken());					
 
 				} catch (JwtException e) {
 					// most likely an ExpiredJwtException, but this will handle any
@@ -109,10 +122,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 					RequestDispatcher dispatcher = request.getRequestDispatcher("expired-jwt");
 					dispatcher.forward(request, response);
 				}
-			} else {
-				log.debug("NOT a POST method or token is null");
-			}
-
+			} 
 			filterChain.doFilter(request, response);
 		}
 	}
@@ -130,12 +140,17 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	@Override
 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 		auth.userDetailsService(userDetailsService()).passwordEncoder(passwordEncoder());
-	}	
+	}
+
+	@Bean
+    public AuthenticationManager customAuthenticationManager() throws Exception {
+        return super.authenticationManager();
+    }
 	
 	@Override
 	public String toString() {
 		return "WebSecurityConfig [jwtCsrfTokenRepository=" + jwtCsrfTokenRepository + ", secretService="
 				+ secretService + "]";
 	}
-	
+
 }

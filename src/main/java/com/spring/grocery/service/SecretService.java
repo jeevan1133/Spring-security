@@ -47,10 +47,6 @@ public class SecretService {
             
         };
     }
-    
-    public SecretService() {
-		// TODO Auto-generated constructor stub
-	}
 
     @PostConstruct
     public void setup() {

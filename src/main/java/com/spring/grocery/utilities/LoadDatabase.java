@@ -102,7 +102,7 @@ public class LoadDatabase {
 		s3.addAll(Arrays.asList(ordl6));
 		ord4.setOrderLine(s4);
 		
-		Users us1 = new Users(cus1, "hellothere", "P@ssword", Role.ADMIN, "abcd@xyz.com");
+		Users us1 = new Users(cus1, "foo", "foo", Role.ADMIN, "abcd@xyz.com");
 		Users us2 = new Users(cus2, "manoj", "ppppp", Role.USER, "manoj@adh.com");
 		
 		return args -> {

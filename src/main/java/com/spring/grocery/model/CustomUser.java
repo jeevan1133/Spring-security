@@ -11,7 +11,8 @@ public class CustomUser extends User {
 	
     private static final long serialVersionUID = -3531439484732724601L;
 
-
+    private Customer customer;
+    
 	public CustomUser(String username, String password, boolean enabled, boolean accountNonExpired,
 			boolean credentialsNonExpired, boolean accountNonLocked,
 			Collection<? extends GrantedAuthority> authorities, Customer cus) {
@@ -20,8 +21,6 @@ public class CustomUser extends User {
 		this.customer = cus;
 	}
 	
-	private Customer customer;
-
 	public Customer getCustomer() {
 		return customer;
 	}

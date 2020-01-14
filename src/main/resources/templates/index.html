@@ -1,16 +1,19 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head th:fragment="head">
+<meta charset="utf-8">
+<meta name="viewport"
+	content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<meta http-equiv="X-UA-Compatible" content="IE=edge" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<meta name="viewport" content="width=device-width" />
+<link
+	href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css"
+	rel="stylesheet">
 <link
 	href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,300,400italic,400,600italic,600,700italic,700,800italic,800"
 	rel="stylesheet" type="text/css" />
 <link
-	href="https://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css"
-	rel="stylesheet" type="text/css" />
+	href="https://getbootstrap.com/docs/4.0/examples/signin/signin.css"
+	rel="stylesheet" crossorigin="anonymous">
 <link rel="stylesheet" type="text/css" media="all" href="/css/gtvg.css"
 	th:href="@{/css/gtvg.css}" />
 <style>
@@ -45,11 +48,10 @@ h3 {
 	<div>
 		<img src="/images/gtvglogo.png" alt="GTVG logo" title="GTVG logo"
 			th:src="@{/images/gtvglogo.png}" th:alt-title="#{logo}" />
-	</div>
-	<div sec:authorize="isAuthenticated()">
-		<div th:object="${user}">
-			<h1 th:text="'Hello ' + *{name} + '!'">Sebastian</h1>
-			<!-- Hello <span sec:authentication="name">Bob!</span> -->
+	</div>	
+	<div class="col-md-6 col-md-offset-3" th:if="${user}">
+	<div th:object="${user}">
+		<h1 th:text="'Hello ' + *{name} + '!'">Sebastian</h1>
 		</div>
 	</div>
 	<div>
@@ -64,19 +66,39 @@ h3 {
       <li><a href="order/list.html" th:href="@{/order/list}">Order List</a></li>
       <li><a href="subscribe.html" th:href="@{/subscribe}">Subscribe to our Newsletter</a></li>
        -->
-			<li>Product List</li>
+			<li><a href="product/list.html" th:href="@{/product-list}">Product List</a></li>
 			<li>Order List</li>
 			<li><a href="userprofile.html" th:href="@{/userprofile}">See
 					User Profile</a></li>
 		</ol>
 	</div>
-	<div sec:authorize="isAuthenticated()">
+	<!-- <div sec:authorize="isAuthenticated()">
 		<form role="form" th:action="@{/logout}" method="post">
 			<input type="submit" value="Sign Out" />
 		</form>
 	</div>
 	<div sec:authorize="isAnonymous()">
-		Would you like to <a href="/login">Log In</a>
+		<p>Would you like to <a href="/login">Log In</a></p>
+		<p><a href="/user/register" th:href="@{/register}">Register here</a></p>			
+	</div> -->
+	<div class="row">
+		<div class="col-md-6 col-md-offset-3">
+			<div>
+				<div th:if="${user}">
+					<form role="form" th:action="@{/logout}" method="post">
+						<input type="submit" value="Sign Out" />
+					</form>
+				</div>
+				<div th:unless="${user}">
+					<p>
+						Would you like to <a href="/login">Log In</a>
+					</p>
+					<p>
+						<a href="/user/register" th:href="@{/registration}">Register here</a>
+					</p>
+				</div>
+			</div>
+		</div>
 	</div>
 
 	<p>

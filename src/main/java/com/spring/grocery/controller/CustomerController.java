@@ -25,7 +25,7 @@ public class CustomerController {
 	}
 
 	@GetMapping("/customers")
-	List<Customer> all() {
+	List<?> all() {
 		log.info("Getting customers from the database");
 		List<Customer> customers = repository.findAll()
 				.stream()
