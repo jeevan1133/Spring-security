@@ -39,7 +39,7 @@ public class JWTCsrfTokenRepository implements CsrfTokenRepository {
 				.replace("-", "");
 
 		Date now = new Date();
-		Date exp = new Date(System.currentTimeMillis() + (1000 * 500)); // 3 minutes
+		Date exp = new Date(System.currentTimeMillis() + (1000 * 500)); // 5 minutes
 		log.debug("id for csrf is: " + id);        
 		log.debug("secret is: " + secret);
 		String token = Jwts.builder()
@@ -80,6 +80,7 @@ public class JWTCsrfTokenRepository implements CsrfTokenRepository {
 	@Override
 	public CsrfToken loadToken(HttpServletRequest request) {
 		log.debug("In: " + this.toString() + ":: " + "loadToken");
+		/* figure out the should be token */
 		HttpSession session = request.getSession(false);
 		if (session == null || "GET".equals(request.getMethod())) {
 			log.debug("SESSION IS NULL ::loadToken");

@@ -1,5 +1,7 @@
 package com.spring.grocery.entity;
 
+import java.io.Serializable;
+
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -16,32 +18,36 @@ import lombok.Data;
 @Data
 @Entity
 @Table(name = "user")
-public class Users {
+public class Users implements Serializable {
 	
-    @Id
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 2478190570506172285L;
+
+	@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @NotNull
     @NotEmpty
     private String userName;
-    
    
     private String firstName;    
     private String lastName;
     
     @NotNull
     @NotEmpty
-    private String password;
-    
-    @Transient
-    private String matchingPassword;
+    private String password;  
     
     private Role role = Role.USER;
    
     @NotNull
     @NotEmpty
     private String email;
+    
+    @Transient
+    private String matchingPassword;
     
     @OneToOne(cascade = CascadeType.MERGE)
     private Customer customer;     

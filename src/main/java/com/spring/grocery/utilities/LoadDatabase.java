@@ -71,7 +71,7 @@ public class LoadDatabase {
 		Customer cus2 = new Customer("Mary Jane",
 				Calendar.getInstance(TimeZone.getTimeZone("CST")));
 		
-		Customer cus3 = new Customer("Mary Blood",
+		Customer cus3 = new Customer("Rambo Blood",
 				Calendar.getInstance(TimeZone.getTimeZone("UTC")));
 		
 		Orders ord1 = new Orders(Calendar.getInstance(TimeZone.getTimeZone("PST")), cus1);	

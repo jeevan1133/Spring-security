@@ -7,18 +7,25 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.validation.constraints.PastOrPresent;
 
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 @Data
 @Entity
 @Table(name="customer")
+@ApiModel(description = "Details about customer")
 public class Customer {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int customerId;
 	private String name;
+	
+	@PastOrPresent(message = "Customer date must be either past or present")
+	@ApiModelProperty(notes="Should be either past or present") 
 	private Calendar customerSince;
 	
 	private String firstName;

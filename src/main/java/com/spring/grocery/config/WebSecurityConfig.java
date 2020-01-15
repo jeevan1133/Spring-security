@@ -19,6 +19,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.web.authentication.session.SessionFixationProtectionStrategy;
 import org.springframework.security.web.csrf.CsrfFilter;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.security.web.csrf.CsrfTokenRepository;
@@ -39,12 +40,12 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
 	@Autowired
 	private SecretService secretService;
-	
-//	@Autowired
-//	private SuccessfulHandler successHandler;
 
-	private final String[] ignoreStaticResources = { "/images/**", "/favicon.ico", "/css/**" };
-	private final String[] ignoreMatchers = { "/", "/index" , "/registration" };	
+	private final String[] ignoreStaticResources = { "/images/**", "/favicon.ico", 
+													"/css/**" ,"/swagger-ui**", 
+													"/webjars/**",
+													"/swagger-resources/**"};
+	private final String[] ignoreMatchers = { "/", "/index" , "/registration" , "/v2/**", "/swagger**"};	
 	
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {    	
@@ -53,27 +54,30 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 			.csrf().disable();
 		http	
 			.authorizeRequests()
-			.antMatchers(ignoreMatchers).permitAll()
+			.antMatchers(ignoreMatchers).permitAll()			
+			//.antMatchers("/product-list").hasRole("ADMIN")			
 			.anyRequest().authenticated()			
 			.and()
 			.addFilterAfter(new JwtCsrfValidatorFilter(), CsrfFilter.class)
 			.csrf()
-			.csrfTokenRepository(jwtCsrfTokenRepository)
+			.csrfTokenRepository(jwtCsrfTokenRepository)			
 			.and()
 			.formLogin(formlogin ->
 					formlogin.loginPage("/login").permitAll()
-					//.successHandler(successHandler)
-					.failureUrl("/")
+					.failureUrl("/login?error=true")
 				
 			)
-			.logout()
-			.invalidateHttpSession(true)
-			.clearAuthentication(true)
-			.logoutSuccessUrl("/")			
-			.permitAll()
-			.and()
+			.logout(logout ->
+				logout
+				.invalidateHttpSession(true)
+				.clearAuthentication(true)
+				.deleteCookies("JSESSIONID")
+				.logoutSuccessUrl("/")	
+				.permitAll()
+			)
 			.sessionManagement()    
 			.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
+			.sessionAuthenticationStrategy(new SessionFixationProtectionStrategy())
 			.maximumSessions(2)
 			.maxSessionsPreventsLogin(true)
 			;
@@ -82,11 +86,12 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	@Override
 	public void configure(WebSecurity web) throws Exception {
         web
-        	.debug(true)        	
+        	.debug(true)
         	.ignoring()
             .antMatchers(ignoreStaticResources);
             //.antMatchers(ignoreMatchers);
     }
+	
 
 	private class JwtCsrfValidatorFilter extends OncePerRequestFilter {
 

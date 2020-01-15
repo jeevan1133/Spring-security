@@ -2,12 +2,17 @@ package com.spring.grocery.controller.advice;
 
 import java.security.SignatureException;
 
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import com.spring.grocery.model.JwtResponse;
 
@@ -15,7 +20,7 @@ import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.MalformedJwtException;
 
 @ControllerAdvice
-public class BaseController {
+public class BaseController extends ResponseEntityExceptionHandler {
 	
 	@ResponseBody
     @ResponseStatus(HttpStatus.BAD_REQUEST)
@@ -39,8 +44,21 @@ public class BaseController {
         response.setMessage(e.getMessage());
         response.setExceptionType(e.getClass()
             .getName());
-
+        
         return response;
 	}
+	
+	@Override
+	protected ResponseEntity<Object> handleMethodArgumentNotValid(
+			MethodArgumentNotValidException ex,
+			HttpHeaders headers, HttpStatus status,
+			WebRequest request) 
+	{
+		JwtResponse response = new JwtResponse();
+		response.setMessage(ex.getBindingResult().toString());
+		response.setStatus(JwtResponse.Status.ERROR);
+		return new ResponseEntity<Object>(response, HttpStatus.NOT_FOUND);
+	}
+	
 }
 

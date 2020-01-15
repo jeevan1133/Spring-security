@@ -5,6 +5,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -58,9 +60,8 @@ public class UserDetailsServiceImp implements UserDetailsService {
 
 		PasswordEncoder encoder = config.passwordEncoder();
 		String passcodeString = encoder.encode(user.getPassword());
-		log.debug("passcodeString: " + passcodeString + " Real password: " + user.getPassword());
-
-
+		//log.debug("passcodeString: " + passcodeString + " Real password: " + user.getPassword());
+		
 		customUser = new CustomUser(username, passcodeString, true, true, true, true, authorities, customer);
 		log.debug("CustomUser is:: " + customUser);
 		

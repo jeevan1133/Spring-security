@@ -19,7 +19,7 @@ public class CSRFConfig {
 	@Bean
 	public CsrfTokenRepository jwtCsrfTokenRepository() {    	
 		log.debug("In: " + this.toString() + "::jwtCsrfTokenRepository");
-		return new JWTCsrfTokenRepository(secretService.getSecretBytes());
+		return new JWTCsrfTokenRepository(secretService.getSecretBytes());		
 	}
 
 	@Override
