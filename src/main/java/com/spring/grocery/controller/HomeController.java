@@ -5,7 +5,6 @@ import static org.springframework.web.bind.annotation.RequestMethod.GET;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
-import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,8 +25,8 @@ import com.spring.grocery.entity.Role;
 import com.spring.grocery.entity.Users;
 import com.spring.grocery.model.CustomUser;
 import com.spring.grocery.model.UserDTO;
+import com.spring.grocery.security.PasswordEncrypter;
 import com.spring.grocery.service.SecurityService;
-//import com.spring.grocery.service.UserValidator;
 import com.spring.grocery.service.UserValidator;
 
 import lombok.extern.slf4j.Slf4j;
@@ -47,6 +46,9 @@ public class HomeController {
 
 	@Autowired
 	private UserValidator userValidator;
+	
+	@Autowired
+	private PasswordEncrypter userRepoImpl;
 
 	@RequestMapping(value="/")
 	public String index() {
@@ -68,18 +70,20 @@ public class HomeController {
 		return "index";
 	}
 
-	@RequestMapping(value="/process-login", method=RequestMethod.POST)
-	public String processLogin(HttpSession session, Authentication authentication)  {	 
-		log.debug("In process-login");
-
-		if (session == null) {
-			return null;
-		}
-		//String client_id = (String) session.getAttribute("client_id");
-		log.debug("Session is: " + session.toString());
-
-		return "/userprofile";
-	}
+	/*
+	 * This never gets called
+	 */
+//	@RequestMapping(value="/process-login", method=RequestMethod.POST)
+//	public String processLogin(HttpSession session, Authentication authentication)  {	 
+//		log.debug("In process-login");
+//
+//		if (session == null) {
+//			return null;
+//		}
+//		log.debug("Session is: " + session.toString());
+//
+//		return "/userprofile";
+//	}
 
 
 	@RequestMapping(value="/login", method = GET)
@@ -90,7 +94,7 @@ public class HomeController {
 	@RequestMapping(value="/expired-jwt", method = RequestMethod.POST)
 	public String sendExpiredLogin(Model model) {
 		log.info("GETTING expired-jwt page");				
-		return "expired-jwt";
+		return "error";
 	}
 
 	@RequestMapping(value="/registration", method=GET)
@@ -100,54 +104,6 @@ public class HomeController {
 		return "register";
 	}
 
-	/*
-	@PostMapping("/registration")
-    public String registration(@ModelAttribute("userDto") Users userForm, BindingResult bindingResult, Model model) {	
-		Thread t1 = new Thread(new Runnable() {
-
-			@Override
-			public void run() {
-				// TODO Auto-generated method stub
-				log.debug("Validating user form");
-
-				userValidator.validate(userForm, bindingResult);
-			}
-		});
-		t1.start();			
-
-        Customer customer = null;
-    	if (userForm.getCustomer() == null) {
-    		customer = new Customer(userForm.getFirstName(), userForm.getLastName(), Calendar.getInstance());
-    		userForm.setCustomer(customer);
-    		log.debug("Setting new customer on userForm: " + userForm);
-
-    	}        	
-    	log.debug("User is: " + userForm);    	    
-       	try {    		
-			t1.join();			
-			log.debug("Thread joined successfully");
-			if (bindingResult.hasErrors()) {
-				log.debug("Result has errors");
-				bindingResult.getAllErrors().stream().forEach(x -> {
-								log.debug(x.toString());						
-				});
-	            return "register";
-	        } 
-
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			return "register";
-		}
-    	log.debug("Auto loggin user");
-    	cusRepo.save(customer);
-    	userRepo.save(userForm);
-		securityService.autoLogin(userForm.getUserName(), userForm.getPassword());
-
-        return "redirect:/userprofile";
-    }
-	 */
-
-
 	@PostMapping("/registration")
 	public String registration(@ModelAttribute("userDto") @Valid UserDTO userForm, BindingResult bindingResult, Model model) {	
 		log.debug("User FORM IS: " + userForm);
@@ -156,7 +112,6 @@ public class HomeController {
 
 			@Override
 			public void run() {
-				// TODO Auto-generated method stub
 				log.debug("Validating user form");
 				userValidator.validate(userForm, bindingResult);
 			}
@@ -168,8 +123,7 @@ public class HomeController {
 				userForm.getUserName(),
 				userForm.getPassword(), 
 				Role.USER, 
-				userForm.getEmail());
-		cusRepo.save(customer);
+				userForm.getEmail());		
 		log.debug("User is: " + userForm);    	    
 		try {    		
 			t1.join();			
@@ -179,7 +133,7 @@ public class HomeController {
 				bindingResult.getAllErrors().stream().forEach(x -> {
 					log.debug(x.toString());						
 				});
-				cusRepo.delete(customer);
+				//cusRepo.delete(customer);
 				return "register";
 			} 
 		} catch (InterruptedException e) {
@@ -188,9 +142,8 @@ public class HomeController {
 		}
 		log.debug("Auto loggin user");
 		cusRepo.save(customer);
-		userRepo.save(user);
+		userRepo.save(userRepoImpl.encryptPassword(user));
 		securityService.autoLogin(userForm.getUserName(), userForm.getPassword());
-
 		return "redirect:/userprofile";
 	}
 
@@ -199,11 +152,11 @@ public class HomeController {
 	public String getProfile(Model model) throws Exception  {
 		log.info("GETTING USER PROFILE");
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		log.debug("authentication: " + auth.getName());
-		log.debug("auth: " + auth.toString());
+//		log.debug("authentication: " + auth.getName());
+//		log.debug("auth: " + auth.toString());
 
 		CustomUser userDetails = (CustomUser)auth.getPrincipal();
-		log.debug("customer is: " + userDetails.getCustomer());
+		//log.debug("customer is: " + userDetails.getCustomer());
 
 		model.addAttribute("user", userDetails.getCustomer());
 		return "userprofile";

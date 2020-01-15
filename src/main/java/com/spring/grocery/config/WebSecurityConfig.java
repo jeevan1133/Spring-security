@@ -41,6 +41,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
 	@Autowired
 	private SecretService secretService;
+	
+	@Autowired
+	private SuccessfulHandler successfulHandler;
 
 	private final String[] ignoreStaticResources = { "/images/**", "favicon.ico", 
 													"/css/**" ,"/swagger-ui**", 
@@ -69,8 +72,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 					.permitAll()
 					.loginPage("/login")									
 					.loginProcessingUrl("/process-login")
+					.successHandler(successfulHandler)
 					.failureUrl("/login?error=true")
-	                .defaultSuccessUrl("/")
+//	                .defaultSuccessUrl("/")
 					)
 			.logout(logout ->
 				logout
@@ -129,7 +133,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 					log.debug("Expired token");
 					request.setAttribute("exception", e);
 					response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-					RequestDispatcher dispatcher = request.getRequestDispatcher("expired-jwt");
+					RequestDispatcher dispatcher = request.getRequestDispatcher("error");
 					dispatcher.forward(request, response);
 				}
 			} 

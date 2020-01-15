@@ -62,7 +62,7 @@ h3 {
 						</section>
 						<section>
 							<div th:if="${#fields.hasErrors('firstName')}">
-								<p th:errors="*{firstName}">User name is not valid</p>
+								<p th:errors="*{firstName}">First name is not valid</p>
 							</div>
 						</section>
 						<section>
@@ -75,19 +75,16 @@ h3 {
 						</section>
 						<section>
 							<div th:if="${#fields.hasErrors('lastName')}">
-								<p th:errors="*{lastName}">User name is not valid</p>
+								<p th:errors="*{lastName}">Last name is not valid</p>
 							</div>
 						</section>
 						<section>
 							<label class="input"> <i
-								class="icon-append icon-envelope-alt"></i> <input type="text"
-								th:field="*{userName}" placeholder="Username" /> <b
+								class="icon-append icon-envelope-alt"></i> 
+								<input type="text" th:field="*{userName}" placeholder="Username" /> <b
 								class="tooltip tooltip-bottom-right">Username for signing in</b>
 							</label>
-						</section>
-						<!-- <section>
-							<p th:if="${#fields.hasErrors('userName')}" th:errors="*{userName}"></p>
-						</section> message.firstName-->
+						</section>						
 						<section>
 							<div th:if="${#fields.hasErrors('userName')}">
 								<p th:errors="*{userName}">User name is not valid</p>
