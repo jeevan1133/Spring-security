@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import com.spring.grocery.exception.EmployeeNotFoundException;
 import com.spring.grocery.model.JwtResponse;
 
 import io.jsonwebtoken.JwtException;
@@ -37,7 +38,7 @@ public class BaseController extends ResponseEntityExceptionHandler {
 	
 	@ResponseBody
 	@ResponseStatus(HttpStatus.BAD_REQUEST)
-	@ExceptionHandler(UsernameNotFoundException.class)
+	@ExceptionHandler({UsernameNotFoundException.class, EmployeeNotFoundException.class})
 	public JwtResponse throwException(Exception e) {
 		JwtResponse response = new JwtResponse();
         response.setStatus(JwtResponse.Status.ERROR);

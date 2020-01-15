@@ -30,7 +30,7 @@ public class CustomerController {
 		List<Customer> customers = repository.findAll()
 				.stream()
 				.collect(Collectors.toList());
-		log.info("have list of employees");
+		log.info("have list of employees");		
 		return customers;
 	}
 }

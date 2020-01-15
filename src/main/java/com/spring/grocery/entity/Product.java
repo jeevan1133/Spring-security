@@ -11,11 +11,14 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonFilter;
+
 import lombok.Data;
 
 @Data
 @Entity
 @Table(name="product")
+@JsonFilter("productFilter")
 public class Product {
 
 	@Id

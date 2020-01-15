@@ -9,7 +9,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
-import javax.persistence.Transient;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
@@ -31,10 +30,7 @@ public class Users implements Serializable {
 
     @NotNull
     @NotEmpty
-    private String userName;
-   
-    private String firstName;    
-    private String lastName;
+    private String userName;    
     
     @NotNull
     @NotEmpty
@@ -46,9 +42,9 @@ public class Users implements Serializable {
     @NotEmpty
     private String email;
     
-    @Transient
-    private String matchingPassword;
-    
+//    @Transient
+//    private String matchingPassword;
+//    
     @OneToOne(cascade = CascadeType.MERGE)
     private Customer customer;     
     

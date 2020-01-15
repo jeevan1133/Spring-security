@@ -22,6 +22,7 @@ import com.spring.grocery.entity.Orders;
 import com.spring.grocery.entity.Product;
 import com.spring.grocery.entity.Role;
 import com.spring.grocery.entity.Users;
+import com.spring.grocery.security.PasswordEncrypter;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -38,6 +39,9 @@ public class LoadDatabase {
 		
 	@Autowired
 	private UserRepository userRepo;
+	
+	@Autowired
+	private PasswordEncrypter userRepoImpl;
 	
 	@Bean
 	CommandLineRunner init() {
@@ -121,8 +125,8 @@ public class LoadDatabase {
 			log.info("Preloading " + ordRepo.save(ord3));
 			log.info("Preloading " + ordRepo.save(ord4));
 			
-			log.info("Preloading " + userRepo.save(us1));
-			log.info("Preloading " + userRepo.save(us2));
+			log.info("Preloading " + userRepo.save(userRepoImpl.encryptPassword(us1)));
+			log.info("Preloading " + userRepo.save(userRepoImpl.encryptPassword(us2)));
 		};
 	}
 }

@@ -31,6 +31,7 @@ import com.spring.grocery.service.UserDetailsServiceImp;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import lombok.extern.slf4j.Slf4j;
+
 @Slf4j
 @Configuration
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
@@ -41,10 +42,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	@Autowired
 	private SecretService secretService;
 
-	private final String[] ignoreStaticResources = { "/images/**", "/favicon.ico", 
+	private final String[] ignoreStaticResources = { "/images/**", "favicon.ico", 
 													"/css/**" ,"/swagger-ui**", 
 													"/webjars/**",
-													"/swagger-resources/**"};
+													"/swagger-resources/**",
+													"/static/**"};
 	private final String[] ignoreMatchers = { "/", "/index" , "/registration" , "/v2/**", "/swagger**"};	
 	
 	@Override
@@ -63,10 +65,13 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 			.csrfTokenRepository(jwtCsrfTokenRepository)			
 			.and()
 			.formLogin(formlogin ->
-					formlogin.loginPage("/login").permitAll()
+					formlogin
+					.permitAll()
+					.loginPage("/login")									
+					.loginProcessingUrl("/process-login")
 					.failureUrl("/login?error=true")
-				
-			)
+	                .defaultSuccessUrl("/")
+					)
 			.logout(logout ->
 				logout
 				.invalidateHttpSession(true)
@@ -151,6 +156,13 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     public AuthenticationManager customAuthenticationManager() throws Exception {
         return super.authenticationManager();
     }
+	
+	@Autowired
+	public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+		log.debug("Configuring global auth manager builder");
+		auth.userDetailsService(userDetailsService()).passwordEncoder(passwordEncoder());
+	}
+
 	
 	@Override
 	public String toString() {

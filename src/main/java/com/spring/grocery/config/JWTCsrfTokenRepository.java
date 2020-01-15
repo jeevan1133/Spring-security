@@ -28,6 +28,18 @@ public class JWTCsrfTokenRepository implements CsrfTokenRepository {
 
 	private byte[] secret;
 
+	public JWTCsrfTokenRepository() {
+		
+	}
+	
+	public byte[] getSecret() {
+		return secret;
+	}
+
+	public void setSecret(byte[] secret) {
+		this.secret = secret;
+	}
+
 	public JWTCsrfTokenRepository(byte[] secret) {
 		log.debug("C-tor: " + secret);
 		this.secret = secret;

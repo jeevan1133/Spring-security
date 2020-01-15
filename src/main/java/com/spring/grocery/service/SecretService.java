@@ -37,14 +37,12 @@ public class SecretService {
             	log.debug("getting signing key resolver in secretservice");
             	log.debug("secrets: " + secrets.get(header.getAlgorithm()));
             	log.debug("JwsHeader: " + header.toString());
-            	log.debug("claims: " + claims.getSubject());
                 return TextCodec.BASE64.decode(secrets.get(header.getAlgorithm()));            
             }
         	
         	public String toString() {
         		return "SigningKeyResolver=[" + super.toString() +  "]";
-        	}
-            
+        	}            
         };
     }
 
