@@ -4,11 +4,15 @@ import static org.springframework.web.bind.annotation.RequestMethod.GET;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Collection;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -17,6 +21,9 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.context.request.RequestAttributes;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import com.spring.grocery.dao.CustomerRepository;
 import com.spring.grocery.dao.UserRepository;
@@ -106,8 +113,6 @@ public class HomeController {
 
 	@PostMapping("/registration")
 	public String registration(@ModelAttribute("userDto") @Valid UserDTO userForm, BindingResult bindingResult, Model model) {	
-		log.debug("User FORM IS: " + userForm);
-
 		Thread t1 = new Thread(new Runnable() {
 
 			@Override
@@ -133,31 +138,44 @@ public class HomeController {
 				bindingResult.getAllErrors().stream().forEach(x -> {
 					log.debug(x.toString());						
 				});
-				//cusRepo.delete(customer);
 				return "register";
 			} 
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			return "register";
 		}
 		log.debug("Auto loggin user");
 		cusRepo.save(customer);
 		userRepo.save(userRepoImpl.encryptPassword(user));
-		securityService.autoLogin(userForm.getUserName(), userForm.getPassword());
-		return "redirect:/userprofile";
-	}
+		RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
+		HttpServletRequest request = null;
+		HttpServletResponse response = null;
+	    if (requestAttributes instanceof ServletRequestAttributes) {
+	        request = ((ServletRequestAttributes)requestAttributes).getRequest();
+	        response = ((ServletRequestAttributes) requestAttributes).getResponse();	        
+	    }
+		securityService.autoLogin(request, response, userForm.getUserName(), userForm.getPassword());
+		log.debug("Successfully auto logged in and returingn index");
+		Collection<GrantedAuthority> authorities = ((CustomUser)SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getAuthorities();
+		var wrapper = new Object() { 
+				String value = "userprofile";
+		};
+		
+		authorities.stream().forEach(x -> {			
+			if((x.getAuthority()).equals("USER")) {
+				wrapper.value = "index";
+			}
+		});
+		log.debug("Returning from controller : " + wrapper.value);
 
+		return wrapper.value;
+	}
 
 	@RequestMapping(value="/userprofile", method=GET)
 	public String getProfile(Model model) throws Exception  {
 		log.info("GETTING USER PROFILE");
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-//		log.debug("authentication: " + auth.getName());
-//		log.debug("auth: " + auth.toString());
-
+		
 		CustomUser userDetails = (CustomUser)auth.getPrincipal();
-		//log.debug("customer is: " + userDetails.getCustomer());
-
 		model.addAttribute("user", userDetails.getCustomer());
 		return "userprofile";
 	}
