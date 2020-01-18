@@ -45,12 +45,12 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	@Autowired
 	private SuccessfulHandler successfulHandler;
 
-	private final String[] ignoreStaticResources = { "/images/**", "favicon.ico", 
+	private final String[] ignoreStaticResources = { "/images/**", "/favicon.ico", 
 													"/css/**" ,"/swagger-ui**", 
 													"/webjars/**",
 													"/swagger-resources/**",
 													"/static/**"};
-	private final String[] ignoreMatchers = { "/", "/index" , "/registration" , "/v2/**", "/swagger**"};	
+	private final String[] ignoreMatchers = { "/", "/error", "/index" , "/registration" , "/v2/**", "/swagger**"};	
 	
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {    	
@@ -87,7 +87,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 			.sessionManagement()    
 			.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
 			.sessionAuthenticationStrategy(new SessionFixationProtectionStrategy())
-			.maximumSessions(2)
+			.maximumSessions(10)
 			.maxSessionsPreventsLogin(true)
 			;
 	}

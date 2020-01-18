@@ -9,14 +9,14 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.validation.constraints.PastOrPresent;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+//import io.swagger.annotations.ApiModel;
+//import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 @Data
 @Entity
 @Table(name="customer")
-@ApiModel(description = "Details about customer")
+//@ApiModel(description = "Details about customer")
 public class Customer {
 
 	@Id
@@ -25,7 +25,7 @@ public class Customer {
 	private String name;
 	
 	@PastOrPresent(message = "Customer date must be either past or present")
-	@ApiModelProperty(notes="Should be either past or present") 
+	//@ApiModelProperty(notes="Should be either past or present") 
 	private Calendar customerSince;
 	
 	private String firstName;

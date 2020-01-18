@@ -17,10 +17,12 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -178,5 +180,12 @@ public class HomeController {
 		CustomUser userDetails = (CustomUser)auth.getPrincipal();
 		model.addAttribute("user", userDetails.getCustomer());
 		return "userprofile";
+		
 	}
+	
+	@GetMapping("/favicon.ico")
+    public String returnNoFavicon() {
+		log.debug("Returning no favico.ico");
+		return "redirect:/index";
+    }
 }
