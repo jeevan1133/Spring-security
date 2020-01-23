@@ -40,70 +40,96 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	private CsrfTokenRepository jwtCsrfTokenRepository;
 
 	@Autowired
-	private SecretService secretService;
+	private SuccessfulHandler successfulHandler;
 	
 	@Autowired
-	private SuccessfulHandler successfulHandler;
+	private SecretService secretService;
 
 	private final String[] ignoreStaticResources = { "/images/**", "/favicon.ico", 
 													"/css/**" ,"/swagger-ui**", 
 													"/webjars/**",
 													"/swagger-resources/**",
 													"/static/**"};
-	private final String[] ignoreMatchers = { "/", "/error", "/index" , "/registration" , "/v2/**", "/swagger**"};	
-	
+
+	private final String[] ignoreMatchers = { "/", "/error", "/index" , "/registration" , "/v2/**", "/swagger**"};
+
 	@Override
-	protected void configure(HttpSecurity http) throws Exception {    	
-		log.debug("In: " + this.toString() + ":: " + "configure");	
+	protected void configure(HttpSecurity http) throws Exception {
+		log.debug("In: " + this.toString() + ":: " + "configure");
 		http
 			.csrf().disable();
-		http	
+		http
 			.authorizeRequests()
-			.antMatchers(ignoreMatchers).permitAll()			
-			//.antMatchers("/product-list").hasRole("ADMIN")			
-			.anyRequest().authenticated()			
+			.antMatchers(ignoreMatchers).permitAll()
+			.anyRequest().authenticated()
 			.and()
 			.addFilterAfter(new JwtCsrfValidatorFilter(), CsrfFilter.class)
 			.csrf()
-			.csrfTokenRepository(jwtCsrfTokenRepository)			
+			.csrfTokenRepository(jwtCsrfTokenRepository)
 			.and()
-			.formLogin(formlogin ->
-					formlogin
-					.permitAll()
-					.loginPage("/login")									
-					.loginProcessingUrl("/process-login")
-					.successHandler(successfulHandler)
-					.failureUrl("/login?error=true")
-//	                .defaultSuccessUrl("/")
-					)	
-			.logout(logout ->
-				logout
-				.invalidateHttpSession(true)
-				.clearAuthentication(true)
-				.deleteCookies("JSESSIONID")
-				.logoutSuccessUrl("/")	
-				.permitAll()
+			.formLogin(formlogin -> 
+						formlogin.permitAll()
+						.loginPage("/login")
+						.loginProcessingUrl("/process-login")
+						.successHandler(successfulHandler)
+						.failureUrl("/login?error=true")
+//	        	       .defaultSuccessUrl("/")
 			)
-			.sessionManagement()    
+			.logout(logout -> 
+						logout
+						.invalidateHttpSession(true)
+						.clearAuthentication(true)
+						.deleteCookies("JSESSIONID")
+						.logoutSuccessUrl("/")
+						.permitAll())
+			.sessionManagement()
 			.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
 			.sessionAuthenticationStrategy(new SessionFixationProtectionStrategy())
 			.maximumSessions(10)
-			.maxSessionsPreventsLogin(true)
-			;
+			.maxSessionsPreventsLogin(true);
 	}
-	
+
 	@Override
 	public void configure(WebSecurity web) throws Exception {
-        web
-        	.debug(true)
-        	.ignoring()
-            .antMatchers(ignoreStaticResources);
-            //.antMatchers(ignoreMatchers);
-    }
+		web
+			.debug(true)
+			.ignoring()
+			.antMatchers(ignoreStaticResources);
+	}
+
+	@Bean
+	public UserDetailsService userDetailsService() {
+		return new UserDetailsServiceImp();
+	};
+
+	@Bean
+	public BCryptPasswordEncoder passwordEncoder() {
+		return new BCryptPasswordEncoder();
+	};
+
+	@Override
+	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+		auth.userDetailsService(userDetailsService()).passwordEncoder(passwordEncoder());
+	}
+
+	@Bean
+	public AuthenticationManager customAuthenticationManager() throws Exception {
+		return super.authenticationManager();
+	}
+
+	@Autowired
+	public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+		log.debug("Configuring global auth manager builder");
+		auth.userDetailsService(userDetailsService()).passwordEncoder(passwordEncoder());
+	}
+
+	@Override
+	public String toString() {
+		return "WebSecurityConfig [jwtCsrfTokenRepository=" + jwtCsrfTokenRepository + "]";
+	}
 	
-
 	private class JwtCsrfValidatorFilter extends OncePerRequestFilter {
-
+	
 		@Override
 		protected void doFilterInternal(HttpServletRequest request, 
 				HttpServletResponse response, 
@@ -140,38 +166,4 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 			filterChain.doFilter(request, response);
 		}
 	}
-
-	@Bean
-	public UserDetailsService userDetailsService() {
-		return new UserDetailsServiceImp();
-	};
-
-	@Bean
-	public BCryptPasswordEncoder passwordEncoder() {
-		return new BCryptPasswordEncoder();
-	};
-
-	@Override
-	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-		auth.userDetailsService(userDetailsService()).passwordEncoder(passwordEncoder());
-	}
-
-	@Bean
-    public AuthenticationManager customAuthenticationManager() throws Exception {
-        return super.authenticationManager();
-    }
-	
-	@Autowired
-	public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-		log.debug("Configuring global auth manager builder");
-		auth.userDetailsService(userDetailsService()).passwordEncoder(passwordEncoder());
-	}
-
-	
-	@Override
-	public String toString() {
-		return "WebSecurityConfig [jwtCsrfTokenRepository=" + jwtCsrfTokenRepository + ", secretService="
-				+ secretService + "]";
-	}
-
 }

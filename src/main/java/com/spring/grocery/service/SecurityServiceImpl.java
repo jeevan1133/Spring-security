@@ -28,7 +28,6 @@ public class SecurityServiceImpl implements SecurityService {
 	@Autowired
 	private SuccessfulHandler succesfulHandler;
 	
-
 	@Autowired
 	private UserDetailsServiceImp userDetailsService;
 	

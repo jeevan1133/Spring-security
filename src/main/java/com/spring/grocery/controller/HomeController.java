@@ -22,7 +22,6 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -73,27 +72,13 @@ public class HomeController {
 		try {
 			CustomUser userDetails = (CustomUser)auth.getPrincipal();
 			model.addAttribute("user", userDetails.getCustomer());
+			log.debug("Adding attribute user: " + userDetails);
+
 		} catch (Exception e) {
 			log.debug("No logged in user");
 		}
 		return "index";
 	}
-
-	/*
-	 * This never gets called
-	 */
-//	@RequestMapping(value="/process-login", method=RequestMethod.POST)
-//	public String processLogin(HttpSession session, Authentication authentication)  {	 
-//		log.debug("In process-login");
-//
-//		if (session == null) {
-//			return null;
-//		}
-//		log.debug("Session is: " + session.toString());
-//
-//		return "/userprofile";
-//	}
-
 
 	@RequestMapping(value="/login", method = GET)
 	public String getLogin(Model model) {
@@ -184,8 +169,8 @@ public class HomeController {
 	}
 	
 	@GetMapping("/favicon.ico")
-    public String returnNoFavicon() {
+    public void returnNoFavicon() {
 		log.debug("Returning no favico.ico");
-		return "redirect:/index";
+		//return "redirect:/index";
     }
 }

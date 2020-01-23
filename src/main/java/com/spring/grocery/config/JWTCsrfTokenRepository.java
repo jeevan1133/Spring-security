@@ -26,11 +26,7 @@ public class JWTCsrfTokenRepository implements CsrfTokenRepository {
 	private static final String DEFAULT_CSRF_TOKEN_ATTR_NAME = CSRFConfig.class.getName()
 			.concat(".CSRF_TOKEN");
 
-	private byte[] secret;
-
-	public JWTCsrfTokenRepository() {
-		
-	}
+	private byte[] secret;	
 	
 	public byte[] getSecret() {
 		return secret;

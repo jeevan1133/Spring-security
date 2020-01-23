@@ -49,6 +49,8 @@ public class SuccessfulHandler implements AuthenticationSuccessHandler {
 		if (hasAdminRole) {
 			path = "/userprofile"; // Should have been a different web page
 		}		
+		log.debug("Redirecting to: " + path == "/" ? "index" : "user profile");
+
 		redirectStrategy.sendRedirect(request, response, path);
 	}
 }
