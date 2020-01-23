@@ -31,10 +31,10 @@ public class GroceryApplication {
 	 * This can be defined in application properties
 	 */
 
-	@Bean(name="messageSource")
-	public ResourceBundleMessageSource bundleMessageSource() {		
-	    ResourceBundleMessageSource messageSource = new ResourceBundleMessageSource();
-	    messageSource.setBasename("message");
-	    return messageSource;
-	}
+//	@Bean(name="messageSource")
+//	public ResourceBundleMessageSource bundleMessageSource() {		
+//	    ResourceBundleMessageSource messageSource = new ResourceBundleMessageSource();
+//	    messageSource.setBasename("message");
+//	    return messageSource;
+//	}
 }
